@@ -2,11 +2,11 @@ import csv
 import matplotlib.pyplot as plt
 import matplotlib.patches as patch
 from PIL import Image
-imgpath = r"../Raw/Raw_KdPengawas_Part1.png"
-csvpath = r"../Datas/patchdataset.csv"
+imgPath = r"../Raw/Raw_KdPengawas_Part1.png"
+csvPath = r"../Datas/patchdataset.csv"
 plt.rcParams["figure.figsize"] = [6.4, 4.8]
 plt.rcParams["figure.autolayout"] = True
-img = Image.open(imgpath)
+img = Image.open(imgPath)
 
 fig,ax = plt.subplots()
 
@@ -18,11 +18,11 @@ ax.imshow(img)
 
 # draw patches, automated with csv
 # placeholder hardcoded path
-with open(csvpath) as file:
+with open(csvPath) as file:
 	patchSet = csv.DictReader(file)
 
 	for x in patchSet:
-		ax.add_patch(patch.Rectangle((float(x['coordX']), float(x['coord-Y'])), float(x['expandX']), float(x['expand-Y']), facecolor=x['status'], alpha=0.5))
+		ax.add_patch(patch.Rectangle((float(x['coordX']), float(x['coord-Y'])), float(x['expandX']), float(x['expand-Y']), facecolor=x['placeholder'], alpha=0.5))
 
 ## axis tick config.
 ## breakdown the limits of two axes and get the value
