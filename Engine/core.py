@@ -2,7 +2,7 @@ import csv
 import matplotlib.pyplot as plt
 import matplotlib.patches as patch
 from PIL import Image
-imgPath = r"../Raw/Raw_KdPengawas_Part1.png"
+imgPath = r"../Raw/Raw_KdPengawas_Part1_alphachannel.png"
 csvPath = r"../Datas/patchdataset.csv"
 plt.rcParams["figure.figsize"] = [6.4, 4.8]
 plt.rcParams["figure.autolayout"] = True
@@ -13,8 +13,8 @@ fig,ax = plt.subplots()
 # draw frames config.
 ax.axis('on')
 
-# show main image
-ax.imshow(img)
+# show main image and make it to frontmost layer
+ax.imshow(img, zorder=3)
 
 # draw patches, automated with csv
 # placeholder hardcoded path
@@ -42,6 +42,6 @@ plt.xticks(rotation=45, ha='right')
 plt.show()
 
 # save plot result
-#ax.axis('off')
+# ax.axis('off')
 # plt.axis('off')
 # plt.savefig('../Exports/testexample_FigurePlot.pdf', format='pdf', dpi=600, bbox_inches='tight')
