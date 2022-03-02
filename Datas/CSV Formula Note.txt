@@ -16,3 +16,18 @@ Below first segment to rightmost column: coordx=same as 1coordX to rightmost, co
 Patch route (H):
 Define first segment manually, same as V.
 Second to belowmost column: coordX=same as 1coordX to belowmost, coordY=(1coordY+1expandY) until finish
+
+Viewport frame properties:
+General
+Linetype scale: 0.2
+Lineweight: 0.05 mm
+Geometry
+CenterX: 8.135
+CenterY: 5.7003
+CenterZ: 0.0000
+Height: 11.3342
+Width: 16.1626
+Misc
+Annotation scale: 1:50
+Standard scale: 1:50
+Custom scale: 0.02

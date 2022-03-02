@@ -2,7 +2,7 @@ import csv
 import matplotlib.pyplot as plt
 import matplotlib.patches as patch
 from PIL import Image
-imgPath = r"../Raw/Raw_KdPengawas_Part1_alphachannel.png"
+imgPath = r"../Raw/Raw_KdPengawas_I.png"
 csvPath = r"../Datas/patchdataset.csv"
 plt.rcParams["figure.figsize"] = [6.4, 4.8]
 plt.rcParams["figure.autolayout"] = True
@@ -21,7 +21,7 @@ with open(csvPath) as file:
 	patchSet = csv.DictReader(file)
 
 	for x in patchSet:
-		if x['coordX'] == "": continue
+		if x['coordX'] == "" or x['expandX'] == "": continue
 		ax.add_patch(patch.Rectangle((float(x['coordX']), float(x['coord-Y'])), float(x['expandX']), float(x['expand-Y']), facecolor=x['placeholder'], alpha=0.5))
 
 ## axis tick config.
