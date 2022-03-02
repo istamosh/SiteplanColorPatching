@@ -16,12 +16,12 @@ ax.axis('on')
 # show main image and make it to frontmost layer
 ax.imshow(img, zorder=3)
 
-# draw patches, automated with csv
-# placeholder hardcoded path
+# draw patches, automated with csv, skip a line iteration if found an empty entry
 with open(csvPath) as file:
 	patchSet = csv.DictReader(file)
 
 	for x in patchSet:
+		if x['coordX'] == "": continue
 		ax.add_patch(patch.Rectangle((float(x['coordX']), float(x['coord-Y'])), float(x['expandX']), float(x['expand-Y']), facecolor=x['placeholder'], alpha=0.5))
 
 ## axis tick config.
