@@ -16,6 +16,9 @@ ax.axis('on')
 # show main image and make it to frontmost layer
 ax.imshow(img, zorder=3)
 
+# add name to window (placeholder)
+fig.canvas.manager.set_window_title('Siteplan Phase I')
+
 # draw patches, automated with csv, skip a line iteration if found an empty entry
 with open(csvPath) as file:
 	patchSet = csv.DictReader(file)
@@ -23,6 +26,7 @@ with open(csvPath) as file:
 	for x in patchSet:
 		if x['coordX'] == "" or x['expandX'] == "": continue
 		ax.add_patch(patch.Rectangle((float(x['coordX']), float(x['coord-Y'])), float(x['expandX']), float(x['expand-Y']), facecolor=x['placeholder'], alpha=0.5))
+
 
 ## axis tick config.
 ## breakdown the limits of two axes and get the value
@@ -38,6 +42,12 @@ with open(csvPath) as file:
 
 # rotate x axis text for readability
 plt.xticks(rotation=45, ha='right')
+
+# base code for Figure II
+fig2, ax2 = plt.subplots()
+ax2.imshow(img)
+plt.xticks(rotation=45, ha='right')
+
 # show plot result
 plt.show()
 
