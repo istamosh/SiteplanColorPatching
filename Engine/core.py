@@ -1,10 +1,11 @@
 import csv
 import matplotlib.pyplot as plt
 import matplotlib.patches as patch
+from matplotlib.backends.backend_pdf import PdfPages as pp
 from PIL import Image
 imgPath = r"../Raw/Raw_KdPengawas_I.png"
 csvPath = r"../Datas/patchdataset.csv"
-plt.rcParams["figure.figsize"] = [6.4, 4.8]
+plt.rcParams["figure.figsize"] = [6.4, 4.8] # this affect pdf export
 plt.rcParams["figure.autolayout"] = True
 img = Image.open(imgPath)
 
@@ -43,15 +44,33 @@ with open(csvPath) as file:
 # rotate x axis text for readability
 plt.xticks(rotation=45, ha='right')
 
+#ax.axis('off')
+#plt.axis('off')
+
 # base code for Figure II
 fig2, ax2 = plt.subplots()
 ax2.imshow(img)
 plt.xticks(rotation=45, ha='right')
 
 # show plot result
-plt.show()
+#plt.show()
 
 # save plot result
-# ax.axis('off')
-# plt.axis('off')
-# plt.savefig('../Exports/testexample_FigurePlot.pdf', format='pdf', dpi=600, bbox_inches='tight')
+ax.axis('off')
+plt.axis('off')
+
+# (placeholder) showing array [1, 2]
+print(plt.get_fignums())
+
+# a method for saving multipages PDF
+def save_multiple_plot(fileName):
+	ops = pp(fileName)
+	fig_numbers = plt.get_fignums()
+	figures = [plt.figure(n) for n in fig_numbers]
+	for fig in figures:
+		fig.savefig(ops, format='pdf')
+	ops.close()
+
+pathName = "../Exports/multiplePageTest.pdf"
+save_multiple_plot(pathName)
+#plt.savefig('../Exports/testexample_FigurePlot.pdf', format='pdf', dpi=600, bbox_inches='tight')
