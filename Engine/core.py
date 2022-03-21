@@ -6,7 +6,7 @@ from PIL import Image
 import easygui as ui
 
 # paths
-imgPath = [r"../Raw/Raw_KdPengawas_I.png", r"../Raw/Raw_KdPengawas_II.png"]
+imgPath = [r"../Raw/Raw_KdPengawas_Approv_I.png", r"../Raw/Raw_KdPengawas_Approv_II.png"]
 csvPath = r"../Datas/patchdataset.csv"
 exportPath = "../Exports/multiplePageTest.pdf"
 
