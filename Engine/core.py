@@ -43,7 +43,6 @@ with open(csvPath) as file:
 			if x['coordX'] == "" or x['expandX'] == "":
 				continue
 			ax2.add_patch(patch.Rectangle((float(x['coordX']), float(x['coord-Y'])), float(x['expandX']), float(x['expand-Y']), facecolor=x['placeholder'], alpha=0.5))
-	print(totalRow)
 
 # a method for saving multipages PDF
 def save_multiple_plot(fileName):
