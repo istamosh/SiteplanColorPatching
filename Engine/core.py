@@ -36,11 +36,11 @@ with open(csvPath) as file:
 	for x in reader:
 		totalRow += 1
 		if totalRow <= 1677:
-			if x['coordX'] == "" or x['expandX'] == "":
+			if x['placement'] == "" or x['coordX'] == "" or x['expandX'] == "":
 				continue
 			ax.add_patch(patch.Rectangle((float(x['coordX']), float(x['coord-Y'])), float(x['expandX']), float(x['expand-Y']), facecolor=x['placeholder'], alpha=0.5))
 		else:
-			if x['coordX'] == "" or x['expandX'] == "":
+			if x['placement'] == "" or x['coordX'] == "" or x['expandX'] == "":
 				continue
 			ax2.add_patch(patch.Rectangle((float(x['coordX']), float(x['coord-Y'])), float(x['expandX']), float(x['expand-Y']), facecolor=x['placeholder'], alpha=0.5))
 
