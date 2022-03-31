@@ -29,9 +29,17 @@ fig2.canvas.manager.set_window_title('Siteplan Phase II')
 
 plt.yticks(rotation=90, ha='right') # rotate x axis text for readability
 
+# Phase I legends properties
+title1 = 'Lorem ipsum'
+prop1 = [3500, 300, 20, 'left', 'bottom']
+list1 = ['violet', 'lightgreen', 'cyan']
+desc1 = ['commercial', 'subside', 'subside 5x12']
+
 # draw patches, automated with csv, skip a line iteration if found an empty entry
 with open(csvPath) as file:
 	reader = csv.DictReader(file)
+	totalCol = len(reader.fieldnames)
+	print(totalCol)
 	totalRow = 0
 	for x in reader:
 		totalRow += 1
@@ -43,6 +51,16 @@ with open(csvPath) as file:
 			if x['placement'] == "" or x['coordX'] == "" or x['expandX'] == "":
 				continue
 			ax2.add_patch(patch.Rectangle((float(x['coordX']), float(x['coord-Y'])), float(x['expandX']), float(x['expand-Y']), facecolor=x['placeholder'], alpha=0.5))
+	if totalCol >= 8:
+		# add a legend title on phase I:
+	 	ax.text(prop1[0], prop1[1], title1, size=prop1[2] ,horizontalalignment=prop1[3], verticalalignment=prop1[4])
+	 	# add legends
+	 	i = totalCol-8
+	 	j = prop1[1]+50
+	 	for x in range(i):
+	 		ax.add_patch(patch.Rectangle((prop1[0], j), 150, 150, facecolor=list1[x], ec='black', alpha=0.5))
+	 		ax.text(prop1[0]+250, j, desc1[x], size=prop1[2]-5, horizontalalignment='left', verticalalignment= 'top')
+	 		j += 200
 
 # a method for saving multipages PDF
 def save_multiple_plot(fileName):
