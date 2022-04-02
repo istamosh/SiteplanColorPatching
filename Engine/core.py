@@ -1,4 +1,5 @@
 import csv
+import math
 import matplotlib.pyplot as plt
 import matplotlib.patches as patch
 from matplotlib.backends.backend_pdf import PdfPages as pp
@@ -55,11 +56,14 @@ with open(csvPath) as file:
 		# add a legend title on phase I:
 	 	ax.text(prop1[0], prop1[1], title1, size=prop1[2] ,horizontalalignment=prop1[3], verticalalignment=prop1[4])
 	 	# add legends
+	 	# placeholder for 3 legends marker
 	 	i = totalCol-8
+	 	# legend y placement spacing below title
 	 	j = prop1[1]+50
+
 	 	for x in range(i):
 	 		ax.add_patch(patch.Rectangle((prop1[0], j), 150, 150, facecolor=list1[x], ec='black', alpha=0.5))
-	 		ax.text(prop1[0]+250, j, desc1[x], size=prop1[2]-5, horizontalalignment='left', verticalalignment= 'top')
+	 		ax.text(prop1[0]+250, j, desc1[x], size=prop1[2]-(math.ceil(prop1[2]*50/100)), horizontalalignment='left', verticalalignment= 'top')
 	 		j += 200
 
 # a method for saving multipages PDF
