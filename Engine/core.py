@@ -42,19 +42,24 @@ with open(csvPath) as file:
 	totalCol = len(reader.fieldnames)
 	print(totalCol)
 	totalRow = 0
+	# go to phase II if plot reaches d64/40
+	phaseSeparator = 0
 	for x in reader:
 		totalRow += 1
-		if totalRow <= 1677:
-			if x['placement'] == "" or x['coordX'] == "" or x['expandX'] == "":
+		if x['block'] == "d64" and x['number'] == '40':
+			phaseSeparator = totalRow
+
+		if totalRow <= phaseSeparator:
+			if x['patch'] == "":
 				continue
-			ax.add_patch(patch.Rectangle((float(x['coordX']), float(x['coord-Y'])), float(x['expandX']), float(x['expand-Y']), facecolor=x['placeholder'], alpha=0.5))
+			ax.add_patch(patch.Rectangle((float(x['coordX']), float(x['coord-Y'])), float(x['expandX']), float(x['expand-Y']), facecolor=x['patch'], alpha=0.5))
 		else:
-			if x['placement'] == "" or x['coordX'] == "" or x['expandX'] == "":
+			if x['patch'] == "":
 				continue
-			ax2.add_patch(patch.Rectangle((float(x['coordX']), float(x['coord-Y'])), float(x['expandX']), float(x['expand-Y']), facecolor=x['placeholder'], alpha=0.5))
+			ax2.add_patch(patch.Rectangle((float(x['coordX']), float(x['coord-Y'])), float(x['expandX']), float(x['expand-Y']), facecolor=x['patch'], alpha=0.5))
 	if totalCol >= 8:
 		# add a legend title on phase I:
-	 	ax.text(prop1[0], prop1[1], title1, size=prop1[2] ,horizontalalignment=prop1[3], verticalalignment=prop1[4])
+	 	ax.text(prop1[0], prop1[1], title1, size=prop1[2] ,ha=prop1[3], va=prop1[4])
 	 	# add legends
 	 	# placeholder for 3 legends marker
 	 	i = totalCol-8
@@ -63,7 +68,7 @@ with open(csvPath) as file:
 
 	 	for x in range(i):
 	 		ax.add_patch(patch.Rectangle((prop1[0], j), 150, 150, facecolor=list1[x], ec='black', alpha=0.5))
-	 		ax.text(prop1[0]+250, j, desc1[x], size=prop1[2]-(math.ceil(prop1[2]*50/100)), horizontalalignment='left', verticalalignment= 'top')
+	 		ax.text(prop1[0]+250, j, desc1[x], size=prop1[2]-(math.ceil(prop1[2]*50/100)), ha='left', va= 'top')
 	 		j += 200
 
 # a method for saving multipages PDF
