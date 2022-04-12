@@ -9,6 +9,7 @@ import easygui as ui
 # paths
 imgPath = [r"../Raw/Raw_KdPengawas_Approv_I.png", r"../Raw/Raw_KdPengawas_Approv_II.png"]
 csvPath = r"../Datas/patchdataset.csv"
+csvEncoding = 'utf-8-sig' #prevent false Encoding
 exportPath = "../Exports/multiplePageTest.pdf"
 
 # printout A3 portrait size and tight layout
@@ -37,26 +38,37 @@ list1 = ['violet', 'lightgreen', 'cyan']
 desc1 = ['commercial', 'subside', 'subside 5x12']
 
 # draw patches, automated with csv, skip a line iteration if found an empty entry
-with open(csvPath) as file:
+with open(csvPath, encoding=csvEncoding) as file:
 	reader = csv.DictReader(file)
-	totalCol = len(reader.fieldnames)
-	print(totalCol)
-	totalRow = 0
-	# go to phase II if plot reaches d64/40
-	phaseSeparator = 0
-	for x in reader:
-		totalRow += 1
-		if x['block'] == "d64" and x['number'] == '40':
-			phaseSeparator = totalRow
+	# list column after 'Spesifikasi' for later use
+	listCol = []
+	for idx, x in enumerate(reader.fieldnames):
+		if idx > reader.fieldnames.index("Spesifikasi"):
+			listCol.append(x)
+	print(listCol)
 
-		if totalRow <= phaseSeparator:
-			if x['patch'] == "":
+	rowCounter = 0
+	# go to phase II if block reaches d64
+	phaseSeparator = 0
+	for row in reader:
+		rowCounter += 1
+		if row['block'] == "d64":
+			phaseSeparator = rowCounter
+			rowCounter = 0
+			break
+	print(phaseSeparator, " rows")
+
+	for row in reader:
+		rowCounter += 1
+		if rowCounter <= phaseSeparator:
+			# skip if there are empty entries inside row
+			if row['patch'] == "":
 				continue
-			ax.add_patch(patch.Rectangle((float(x['coordX']), float(x['coord-Y'])), float(x['expandX']), float(x['expand-Y']), facecolor=x['patch'], alpha=0.5))
+			ax.add_patch(patch.Rectangle((float(row['coordX']), float(row['coord-Y'])), float(row['expandX']), float(row['expand-Y']), facecolor=row['patch'], alpha=0.5))
 		else:
-			if x['patch'] == "":
+			if row['patch'] == "":
 				continue
-			ax2.add_patch(patch.Rectangle((float(x['coordX']), float(x['coord-Y'])), float(x['expandX']), float(x['expand-Y']), facecolor=x['patch'], alpha=0.5))
+			ax2.add_patch(patch.Rectangle((float(row['coordX']), float(row['coord-Y'])), float(row['expandX']), float(row['expand-Y']), facecolor=row['patch'], alpha=0.5))
 	if totalCol >= 8:
 		# add a legend title on phase I:
 	 	ax.text(prop1[0], prop1[1], title1, size=prop1[2] ,ha=prop1[3], va=prop1[4])
