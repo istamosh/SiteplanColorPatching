@@ -41,49 +41,51 @@ desc1 = ['commercial', 'subside', 'subside 5x12']
 with open(csvPath, encoding=csvEncoding) as file:
 	reader = csv.DictReader(file)
 	# list column after 'Spesifikasi' for later use
-	listCol = []
+	entryColumn = []
 	for idx, x in enumerate(reader.fieldnames):
 		if idx > reader.fieldnames.index("Spesifikasi"):
-			listCol.append(x)
-	print(listCol)
+			entryColumn.append(x)
+	print(entryColumn)
 
-	rowCounter = 0
 	# go to phase II if block reaches d64
 	phaseSeparator = 0
-	for row in reader:
-		rowCounter += 1
+	for idx, row in enumerate(reader):
 		if row['block'] == "d64":
-			phaseSeparator = rowCounter
-			rowCounter = 0
+			phaseSeparator = idx+1
 			break
 	print(phaseSeparator, " rows")
 
+	# negative color set for combining purpose
+	facecolorSet = ['cyan','magenta','yellow']
+
+	rowCounter = 0
 	for row in reader:
 		rowCounter += 1
 		if rowCounter <= phaseSeparator:
-			# skip if there are empty entries inside row
-			if row['patch'] == "":
-				continue
-			ax.add_patch(patch.Rectangle((float(row['coordX']), float(row['coord-Y'])), float(row['expandX']), float(row['expand-Y']), facecolor=row['patch'], alpha=0.5))
+			# skip if there are empty entries inside row (hardcoded check 'v' and alpha/opacity)
+			for idx, x in enumerate(entryColumn):
+				if row[x] == "v":
+					fc = facecolorSet[idx]
+					ax.add_patch(patch.Rectangle((float(row['coordX']), float(row['coord-Y'])), float(row['expandX']), float(row['expand-Y']), facecolor=row[fc], alpha=0.5))
 		else:
-			if row['patch'] == "":
-				continue
-			ax2.add_patch(patch.Rectangle((float(row['coordX']), float(row['coord-Y'])), float(row['expandX']), float(row['expand-Y']), facecolor=row['patch'], alpha=0.5))
-	if totalCol >= 8:
+			for x in entryColumn:
+				if row[x] == "v":
+					fc = facecolorSet[x]
+					ax2.add_patch(patch.Rectangle((float(row['coordX']), float(row['coord-Y'])), float(row['expandX']), float(row['expand-Y']), facecolor=row[fc], alpha=0.5))
+	
+	if len(reader.fieldnames) > reader.fieldnames.index("Spesifikasi"):
 		# add a legend title on phase I:
 	 	ax.text(prop1[0], prop1[1], title1, size=prop1[2] ,ha=prop1[3], va=prop1[4])
 	 	# add legends
-	 	# placeholder for 3 legends marker
-	 	i = totalCol-8
 	 	# legend y placement spacing below title
 	 	j = prop1[1]+50
 
-	 	for x in range(i):
-	 		ax.add_patch(patch.Rectangle((prop1[0], j), 150, 150, facecolor=list1[x], ec='black', alpha=0.5))
-	 		ax.text(prop1[0]+250, j, desc1[x], size=prop1[2]-(math.ceil(prop1[2]*50/100)), ha='left', va= 'top')
+	 	for idx, x in enumerate(entryColumn):
+	 		ax.add_patch(patch.Rectangle((prop1[0], j), 150, 150, facecolor=facecolorSet[idx], ec='black', alpha=0.5))
+	 		ax.text(prop1[0]+250, j, entryColumn[idx], size=prop1[2]-(math.ceil(prop1[2]*50/100)), ha='left', va= 'top')
 	 		j += 200
 
-# a method for saving multipages PDF
+# defining a method for saving multipages PDF
 def save_multiple_plot(fileName):
 	ops = pp(fileName)
 	fig_numbers = plt.get_fignums()
