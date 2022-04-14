@@ -1,3 +1,4 @@
+import sys
 import csv
 import math
 import matplotlib.pyplot as plt
@@ -55,6 +56,10 @@ with open(csvPath, encoding=csvEncoding) as file:
 			break
 	print(phaseSeparator, " rows")
 
+	# read csv from beginning
+	file.seek(0)
+	next(file)
+
 	# negative color set for combining purpose
 	facecolorSet = ['cyan','magenta','yellow']
 
@@ -63,10 +68,26 @@ with open(csvPath, encoding=csvEncoding) as file:
 		rowCounter += 1
 		if rowCounter <= phaseSeparator:
 			# skip if there are empty entries inside row (hardcoded check 'v' and alpha/opacity)
-			for idx, x in enumerate(entryColumn):
-				if row[x] == "v":
-					fc = facecolorSet[idx]
-					ax.add_patch(patch.Rectangle((float(row['coordX']), float(row['coord-Y'])), float(row['expandX']), float(row['expand-Y']), facecolor=row[fc], alpha=0.5))
+			# hardcoded version.
+			if rowCounter <= 3:
+				print(row['hehe'], "row index: ", rowCounter)
+			# if row[entryColumn[0]] == "v":
+			# 	ax.add_patch(patch.Rectangle((float(row['coordX']),
+			# 		float(row['coord-Y'])), float(row['expandX']),
+			# 		float(row['expand-Y']), facecolor=row[facecolorSet[0]], alpha=0.5))
+			# if row[entryColumn[1]] == "v":
+			# 	ax.add_patch(patch.Rectangle((float(row['coordX']),
+			# 		float(row['coord-Y'])), float(row['expandX']),
+			# 		float(row['expand-Y']), facecolor=row[facecolorSet[1]], alpha=0.5))
+			# if row[entryColumn[2]] == "v":
+			# 	ax.add_patch(patch.Rectangle((float(row['coordX']),
+			# 		float(row['coord-Y'])), float(row['expandX']),
+			# 		float(row['expand-Y']), facecolor=row[facecolorSet[2]], alpha=0.5))
+
+			# for idx, x in enumerate(entryColumn):
+			# 	if row[x] == "v":
+			# 		fc = facecolorSet[idx]
+			# 		ax.add_patch(patch.Rectangle((float(row['coordX']), float(row['coord-Y'])), float(row['expandX']), float(row['expand-Y']), facecolor=row[fc], alpha=0.5))
 		else:
 			for x in entryColumn:
 				if row[x] == "v":
@@ -95,10 +116,12 @@ def save_multiple_plot(fileName):
 	ops.close()
 
 # codes for prompt window
-choice = ui.buttonbox('Mau tampil atau PDF?', 'Pertanyaan', ('Tampil', 'PDF'))
+choice = ui.buttonbox('Mau tampil atau PDF?', 'Pertanyaan', ('Tampil', 'PDF', 'Keluar'))
 if choice == 'Tampil':
 	plt.show()
-else:
+elif choice == 'PDF':
 	ax.axis('off')
 	plt.axis('off')
 	save_multiple_plot(exportPath)
+else:
+	sys.exit(0)
