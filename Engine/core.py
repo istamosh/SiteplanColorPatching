@@ -61,7 +61,7 @@ with open(csvPath, encoding=csvEncoding) as file:
 	next(file)
 
 	# negative color set for combining purpose
-	facecolorSet = ['cyan','magenta','yellow']
+	fcSet = ['aqua','chartreuse','crimson']
 
 	rowCounter = 0
 	for row in reader:
@@ -69,29 +69,29 @@ with open(csvPath, encoding=csvEncoding) as file:
 		if rowCounter <= phaseSeparator:
 			# skip if there are empty entries inside row (hardcoded check 'v' and alpha/opacity)
 			# hardcoded version.
-			if rowCounter <= 3:
-				print(row['hehe'], "row index: ", rowCounter)
-			# if row[entryColumn[0]] == "v":
-			# 	ax.add_patch(patch.Rectangle((float(row['coordX']),
-			# 		float(row['coord-Y'])), float(row['expandX']),
-			# 		float(row['expand-Y']), facecolor=row[facecolorSet[0]], alpha=0.5))
-			# if row[entryColumn[1]] == "v":
-			# 	ax.add_patch(patch.Rectangle((float(row['coordX']),
-			# 		float(row['coord-Y'])), float(row['expandX']),
-			# 		float(row['expand-Y']), facecolor=row[facecolorSet[1]], alpha=0.5))
-			# if row[entryColumn[2]] == "v":
-			# 	ax.add_patch(patch.Rectangle((float(row['coordX']),
-			# 		float(row['coord-Y'])), float(row['expandX']),
-			# 		float(row['expand-Y']), facecolor=row[facecolorSet[2]], alpha=0.5))
+			# if rowCounter <= 3:
+			# 	print(row['hehe'], "row index: ", rowCounter)
+			if row[entryColumn[0]] == "v":
+				ax.add_patch(patch.Rectangle((float(row['coordX']),
+					float(row['coord-Y'])), float(row['expandX']),
+					float(row['expand-Y']), fc=fcSet[0], alpha=0.5))
+			if row[entryColumn[1]] == "v":
+				ax.add_patch(patch.Rectangle((float(row['coordX']),
+					float(row['coord-Y'])), float(row['expandX']),
+					float(row['expand-Y']), fc=fcSet[1], alpha=0.5))
+			if row[entryColumn[2]] == "v":
+				ax.add_patch(patch.Rectangle((float(row['coordX']),
+					float(row['coord-Y'])), float(row['expandX']),
+					float(row['expand-Y']), fc=fcSet[2], alpha=0.5))
 
 			# for idx, x in enumerate(entryColumn):
 			# 	if row[x] == "v":
-			# 		fc = facecolorSet[idx]
+			# 		fc = fcSet[idx]
 			# 		ax.add_patch(patch.Rectangle((float(row['coordX']), float(row['coord-Y'])), float(row['expandX']), float(row['expand-Y']), facecolor=row[fc], alpha=0.5))
 		else:
 			for x in entryColumn:
 				if row[x] == "v":
-					fc = facecolorSet[x]
+					fc = fcSet[x]
 					ax2.add_patch(patch.Rectangle((float(row['coordX']), float(row['coord-Y'])), float(row['expandX']), float(row['expand-Y']), facecolor=row[fc], alpha=0.5))
 	
 	if len(reader.fieldnames) > reader.fieldnames.index("Spesifikasi"):
@@ -102,7 +102,7 @@ with open(csvPath, encoding=csvEncoding) as file:
 	 	j = prop1[1]+50
 
 	 	for idx, x in enumerate(entryColumn):
-	 		ax.add_patch(patch.Rectangle((prop1[0], j), 150, 150, facecolor=facecolorSet[idx], ec='black', alpha=0.5))
+	 		ax.add_patch(patch.Rectangle((prop1[0], j), 150, 150, facecolor=fcSet[idx], ec='black', alpha=0.5))
 	 		ax.text(prop1[0]+250, j, entryColumn[idx], size=prop1[2]-(math.ceil(prop1[2]*50/100)), ha='left', va= 'top')
 	 		j += 200
 
