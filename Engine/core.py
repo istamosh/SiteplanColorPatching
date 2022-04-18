@@ -17,6 +17,13 @@ exportPath = "../Exports/multiplePageTest.pdf"
 plt.rcParams["figure.figsize"] = [11.7, 16.5]
 plt.rcParams["figure.autolayout"] = True
 
+# patch config.
+opacity = 1.0
+fcSet = ['red','royalblue','yellow',
+			'magenta','limegreen','orange',
+			'deeppink','darkviolet','cyan',
+			'chartreuse','goldenrod','orangered']
+
 # Figure I code
 img1 = Image.open(imgPath[0])
 fig,ax = plt.subplots()
@@ -33,10 +40,9 @@ fig2.canvas.manager.set_window_title('Siteplan Phase II')
 plt.yticks(rotation=90, ha='right') # rotate x axis text for readability
 
 # Phase I legends properties
-title1 = 'Lorem ipsum'
-prop1 = [3500, 300, 20, 'left', 'bottom']
-list1 = ['violet', 'lightgreen', 'cyan']
-desc1 = ['commercial', 'subside', 'subside 5x12']
+ymax, _ = ax.get_ylim()
+legendTitle = 'Lorem ipsum'
+placementProp = [3500, math.floor(ymax*3/100), 20, 'left', 'bottom']
 
 # draw patches, automated with csv, skip a line iteration if found an empty entry
 with open(csvPath, encoding=csvEncoding) as file:
@@ -46,7 +52,6 @@ with open(csvPath, encoding=csvEncoding) as file:
 	for idx, x in enumerate(reader.fieldnames):
 		if idx > reader.fieldnames.index("Spesifikasi"):
 			entryColumn.append(x)
-	print(entryColumn)
 
 	# go to phase II if block reaches d64
 	phaseSeparator = 0
@@ -54,57 +59,56 @@ with open(csvPath, encoding=csvEncoding) as file:
 		if row['block'] == "d64":
 			phaseSeparator = idx+1
 			break
-	print(phaseSeparator, " rows")
 
 	# read csv from beginning
 	file.seek(0)
 	next(file)
 
-	# negative color set for combining purpose
-	fcSet = ['aqua','chartreuse','crimson']
+	# add color(s) based on entry column(s)
+	if len(entryColumn) <= 12:
+		rowCounter = 0
+		for row in reader:
+			rowCounter += 1
+			if rowCounter < phaseSeparator:
+				# skip if there are empty entries inside row (hardcoded check 'v' and alpha/opacity)
+				for idx, x in enumerate(entryColumn):
+					if row[x] == "v":
+						ax.add_patch(patch.Rectangle((float(row['coordX']),
+						float(row['coord-Y'])), float(row['expandX']),
+						float(row['expand-Y']), fc=fcSet[idx], alpha=opacity))
+			else:
+				for idx, x in enumerate(entryColumn):
+					if row[x] == "v":
+						ax2.add_patch(patch.Rectangle((float(row['coordX']),
+						float(row['coord-Y'])), float(row['expandX']),
+						float(row['expand-Y']), fc=fcSet[idx], alpha=opacity))
+		
+		if len(reader.fieldnames) > reader.fieldnames.index("Spesifikasi"):
+			# add a legend title on phase I:
+		 	ax.text(placementProp[0], placementProp[1], legendTitle,
+		 		size=placementProp[2] ,ha=placementProp[3], va=placementProp[4])
 
-	rowCounter = 0
-	for row in reader:
-		rowCounter += 1
-		if rowCounter <= phaseSeparator:
-			# skip if there are empty entries inside row (hardcoded check 'v' and alpha/opacity)
-			# hardcoded version.
-			# if rowCounter <= 3:
-			# 	print(row['hehe'], "row index: ", rowCounter)
-			if row[entryColumn[0]] == "v":
-				ax.add_patch(patch.Rectangle((float(row['coordX']),
-					float(row['coord-Y'])), float(row['expandX']),
-					float(row['expand-Y']), fc=fcSet[0], alpha=0.5))
-			if row[entryColumn[1]] == "v":
-				ax.add_patch(patch.Rectangle((float(row['coordX']),
-					float(row['coord-Y'])), float(row['expandX']),
-					float(row['expand-Y']), fc=fcSet[1], alpha=0.5))
-			if row[entryColumn[2]] == "v":
-				ax.add_patch(patch.Rectangle((float(row['coordX']),
-					float(row['coord-Y'])), float(row['expandX']),
-					float(row['expand-Y']), fc=fcSet[2], alpha=0.5))
+		 	# add legends
+		 	# legend y placement spacing below title
+		 	vertTolerance = placementProp[1]+(math.ceil(placementProp[1]*16.7/100))
+		 	horzTolerance = placementProp[0]+1500
+		 	vertTolerance1 = vertTolerance
 
-			# for idx, x in enumerate(entryColumn):
-			# 	if row[x] == "v":
-			# 		fc = fcSet[idx]
-			# 		ax.add_patch(patch.Rectangle((float(row['coordX']), float(row['coord-Y'])), float(row['expandX']), float(row['expand-Y']), facecolor=row[fc], alpha=0.5))
-		else:
-			for x in entryColumn:
-				if row[x] == "v":
-					fc = fcSet[x]
-					ax2.add_patch(patch.Rectangle((float(row['coordX']), float(row['coord-Y'])), float(row['expandX']), float(row['expand-Y']), facecolor=row[fc], alpha=0.5))
-	
-	if len(reader.fieldnames) > reader.fieldnames.index("Spesifikasi"):
-		# add a legend title on phase I:
-	 	ax.text(prop1[0], prop1[1], title1, size=prop1[2] ,ha=prop1[3], va=prop1[4])
-	 	# add legends
-	 	# legend y placement spacing below title
-	 	j = prop1[1]+50
-
-	 	for idx, x in enumerate(entryColumn):
-	 		ax.add_patch(patch.Rectangle((prop1[0], j), 150, 150, facecolor=fcSet[idx], ec='black', alpha=0.5))
-	 		ax.text(prop1[0]+250, j, entryColumn[idx], size=prop1[2]-(math.ceil(prop1[2]*50/100)), ha='left', va= 'top')
-	 		j += 200
+		 	for idx, x in enumerate(entryColumn):
+		 		if idx <= 5:
+			 		ax.add_patch(patch.Rectangle((placementProp[0], vertTolerance),
+			 			150, 150, fc=fcSet[idx], ec='black', alpha=opacity))
+			 		ax.text(placementProp[0]+250, vertTolerance, entryColumn[idx],
+			 			size=placementProp[2]-(math.ceil(placementProp[2]*25/100)),
+			 			ha='left', va='top')
+			 		vertTolerance += 200
+			 	else:
+			 		ax.add_patch(patch.Rectangle((horzTolerance, vertTolerance1),
+			 			150, 150, fc=fcSet[idx], ec='black', alpha=opacity))
+			 		ax.text(horzTolerance+250, vertTolerance1, entryColumn[idx],
+			 			size=placementProp[2]-(math.ceil(placementProp[2]*25/100)),
+			 			ha='left', va='top')
+			 		vertTolerance1 += 200
 
 # defining a method for saving multipages PDF
 def save_multiple_plot(fileName):
