@@ -9,9 +9,9 @@ import easygui as ui
 
 # paths
 imgPath = [r"../Raw/Raw_KdPengawas_Approv_I.png", r"../Raw/Raw_KdPengawas_Approv_II.png"]
-csvPath = r"../Datas/patchdataset_triyatno.csv"
+csvPath = r"../Datas/patchdataset_datalistrik-pak-tri.csv"
 csvEncoding = 'utf-8-sig' #prevent false Encoding
-exportPath = "../Exports/multiplePageTest.pdf"
+exportPath = "../Exports/datalistrik-pak-tri.pdf"
 
 # printout A3 portrait size and tight layout
 plt.rcParams["figure.figsize"] = [11.7, 16.5]
@@ -39,7 +39,7 @@ fig2.canvas.manager.set_window_title('Siteplan Phase II')
 
 plt.yticks(rotation=90, ha='right') # rotate x axis text for readability
 
-# Phase I legends properties
+# Legends properties
 ymax, _ = ax.get_ylim()
 _ , xmax = ax2.get_xlim()
 legendTitle = ""
@@ -50,11 +50,13 @@ leg2 = [7000, _]
 def doWork():
 	with open(csvPath, encoding=csvEncoding) as file:
 		reader = csv.DictReader(file)
-		# list column after 'Spesifikasi' for later use
+		# list column and its patch counter after 'Spesifikasi' for later use
 		entryColumn = []
+		placeholderCounter = []
 		for idx, x in enumerate(reader.fieldnames):
 			if idx > reader.fieldnames.index("Spesifikasi"):
 				entryColumn.append(x)
+				placeholderCounter.append(0)
 	
 		# go to phase II if block reaches d64
 		phaseSeparator = 0
@@ -79,12 +81,14 @@ def doWork():
 							ax.add_patch(patch.Rectangle((float(row['coordX']),
 							float(row['coord-Y'])), float(row['expandX']),
 							float(row['expand-Y']), fc=fcSet[idx], alpha=opacity))
+							placeholderCounter[idx] += 1
 				else:
 					for idx, x in enumerate(entryColumn):
 						if row[x] == "v":
 							ax2.add_patch(patch.Rectangle((float(row['coordX']),
 							float(row['coord-Y'])), float(row['expandX']),
 							float(row['expand-Y']), fc=fcSet[idx], alpha=opacity))
+							placeholderCounter[idx] += 1
 			
 			if len(reader.fieldnames) > reader.fieldnames.index("Spesifikasi"):
 				# add legends
@@ -101,21 +105,21 @@ def doWork():
 			 	ax2.text(xmax-placementProp[1], leg2[0], legendTitle,
 			 		rotation=angle,	size=placementProp[2], 
 			 		ha='right', va='top')
-	
+
 			 	for idx, x in enumerate(entryColumn):
 			 		if idx <= 5:
 			 			# phase I
 				 		ax.add_patch(patch.Rectangle((placementProp[0], vertTolerance+100),
 				 			legendSize, legendSize, fc=fcSet[idx], ec='black', alpha=opacity))
 				 		ax.text(placementProp[0]+250, vertTolerance+(math.floor(legendSize*50/100))+100,
-				 		 	entryColumn[idx], size=placementProp[2]-(math.ceil(placementProp[2]*25/100)),
+				 		 	entryColumn[idx] + " (" + str(placeholderCounter[idx]) +")", size=placementProp[2]-(math.ceil(placementProp[2]*25/100)),
 				 			ha='left', va='center')
 	
 				 		# phase II
 				 		ax2.add_patch(patch.Rectangle((xmax-placementProp[1]-vertTolerance, leg2[0]),
 				 			legendSize, legendSize, fc=fcSet[idx], ec='black', alpha=opacity))
 				 		ax2.text(xmax-250-vertTolerance, leg2[0]+250,
-				 			entryColumn[idx], size=placementProp[2]-math.ceil(placementProp[2]*25/100),
+				 			entryColumn[idx] + " (" + str(placeholderCounter[idx]) +")", size=placementProp[2]-math.ceil(placementProp[2]*25/100),
 				 			ha='center', va='top', rotation=angle)
 	
 				 		vertTolerance += 200
@@ -124,14 +128,14 @@ def doWork():
 				 		ax.add_patch(patch.Rectangle((horzTolerance, vertTolerance1+100),
 				 			legendSize, legendSize, fc=fcSet[idx], ec='black', alpha=opacity))
 				 		ax.text(horzTolerance+250, vertTolerance1+(math.floor(legendSize*50/100))+100,
-				 		 	entryColumn[idx], size=placementProp[2]-(math.ceil(placementProp[2]*25/100)),
+				 		 	entryColumn[idx] + " (" + str(placeholderCounter[idx]) +")", size=placementProp[2]-(math.ceil(placementProp[2]*25/100)),
 				 			ha='left', va='center')
 	
 				 		# phase II
 				 		ax2.add_patch(patch.Rectangle((xmax-placementProp[1]-vertTolerance1, leg2[0]+1500),
 				 			legendSize, legendSize, fc=fcSet[idx], ec='black', alpha=opacity))
 				 		ax2.text(xmax-vertTolerance1-250, leg2[0]+1500+250,
-				 			entryColumn[idx], size=placementProp[2]-math.ceil(placementProp[2]*25/100),
+				 			entryColumn[idx] + " (" + str(placeholderCounter[idx]) +")", size=placementProp[2]-math.ceil(placementProp[2]*25/100),
 				 			ha='center', va='top', rotation=angle)
 	
 				 		vertTolerance1 += 200
