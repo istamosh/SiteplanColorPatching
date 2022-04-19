@@ -9,7 +9,7 @@ import easygui as ui
 
 # paths
 imgPath = [r"../Raw/Raw_KdPengawas_Approv_I.png", r"../Raw/Raw_KdPengawas_Approv_II.png"]
-csvPath = r"../Datas/patchdataset.csv"
+csvPath = r"../Datas/patchdataset_triyatno.csv"
 csvEncoding = 'utf-8-sig' #prevent false Encoding
 exportPath = "../Exports/multiplePageTest.pdf"
 
