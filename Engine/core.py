@@ -1,4 +1,9 @@
 import sys
+# from os.path import expanduser as eu
+import os
+from os.path import relpath
+import tkinter as tk
+from tkinter import filedialog as dialog
 import csv
 import math
 import matplotlib.pyplot as plt
@@ -9,9 +14,11 @@ import easygui as ui
 
 # paths
 imgPath = [r"../Raw/Raw_KdPengawas_Approv_I.png", r"../Raw/Raw_KdPengawas_Approv_II.png"]
-csvPath = r"../Datas/patchdataset_datalistrik-pak-tri.csv"
+csvPath = ""
 csvEncoding = 'utf-8-sig' #prevent false Encoding
-exportPath = "../Exports/datalistrik-pak-tri.pdf"
+exportPath = ""
+# defaultHomePath = eu("~")
+# print(defaultHomePath)
 
 # printout A3 portrait size and tight layout
 plt.rcParams["figure.figsize"] = [11.7, 16.5]
@@ -93,7 +100,7 @@ def doWork():
 			if len(reader.fieldnames) > reader.fieldnames.index("Spesifikasi"):
 				# add legends
 			 	# legend y placement spacing below title
-			 	vertTolerance = placementProp[1]+(math.ceil(placementProp[1]*50/100))
+			 	vertTolerance = placementProp[1]+math.ceil(placementProp[1]*50/100)
 			 	horzTolerance = placementProp[0]+1500
 			 	vertTolerance1 = vertTolerance
 			 	legendSize = 150
@@ -111,15 +118,17 @@ def doWork():
 			 			# phase I
 				 		ax.add_patch(patch.Rectangle((placementProp[0], vertTolerance+100),
 				 			legendSize, legendSize, fc=fcSet[idx], ec='black', alpha=opacity))
-				 		ax.text(placementProp[0]+250, vertTolerance+(math.floor(legendSize*50/100))+100,
-				 		 	entryColumn[idx] + " (" + str(placeholderCounter[idx]) +")", size=placementProp[2]-(math.ceil(placementProp[2]*25/100)),
+				 		ax.text(placementProp[0]+250, vertTolerance+math.floor(legendSize*50/100)+100,
+				 		 	entryColumn[idx] + " (" + str(placeholderCounter[idx]) +")", 
+				 		 	size=placementProp[2]-math.ceil(placementProp[2]*25/100),
 				 			ha='left', va='center')
 	
 				 		# phase II
 				 		ax2.add_patch(patch.Rectangle((xmax-placementProp[1]-vertTolerance, leg2[0]),
 				 			legendSize, legendSize, fc=fcSet[idx], ec='black', alpha=opacity))
 				 		ax2.text(xmax-250-vertTolerance, leg2[0]+250,
-				 			entryColumn[idx] + " (" + str(placeholderCounter[idx]) +")", size=placementProp[2]-math.ceil(placementProp[2]*25/100),
+				 			entryColumn[idx] + " (" + str(placeholderCounter[idx]) +")", 
+				 			size=placementProp[2]-math.ceil(placementProp[2]*25/100),
 				 			ha='center', va='top', rotation=angle)
 	
 				 		vertTolerance += 200
@@ -127,15 +136,17 @@ def doWork():
 				 		# phase I
 				 		ax.add_patch(patch.Rectangle((horzTolerance, vertTolerance1+100),
 				 			legendSize, legendSize, fc=fcSet[idx], ec='black', alpha=opacity))
-				 		ax.text(horzTolerance+250, vertTolerance1+(math.floor(legendSize*50/100))+100,
-				 		 	entryColumn[idx] + " (" + str(placeholderCounter[idx]) +")", size=placementProp[2]-(math.ceil(placementProp[2]*25/100)),
+				 		ax.text(horzTolerance+250, vertTolerance1+math.floor(legendSize*50/100)+100,
+				 		 	entryColumn[idx] + " (" + str(placeholderCounter[idx]) +")", 
+				 		 	size=placementProp[2]-math.ceil(placementProp[2]*25/100),
 				 			ha='left', va='center')
 	
 				 		# phase II
 				 		ax2.add_patch(patch.Rectangle((xmax-placementProp[1]-vertTolerance1, leg2[0]+1500),
 				 			legendSize, legendSize, fc=fcSet[idx], ec='black', alpha=opacity))
 				 		ax2.text(xmax-vertTolerance1-250, leg2[0]+1500+250,
-				 			entryColumn[idx] + " (" + str(placeholderCounter[idx]) +")", size=placementProp[2]-math.ceil(placementProp[2]*25/100),
+				 			entryColumn[idx] + " (" + str(placeholderCounter[idx]) +")", 
+				 			size=placementProp[2]-math.ceil(placementProp[2]*25/100),
 				 			ha='center', va='top', rotation=angle)
 	
 				 		vertTolerance1 += 200
@@ -149,17 +160,40 @@ def save_multiple_plot(fileName):
 		fig.savefig(ops, format='pdf', dpi=600, bbox_inches='tight')
 	ops.close()
 
-# codes for prompt window
-choice = ui.buttonbox('Mau tampil atau PDF?', 'Pertanyaan', ('Tampil', 'PDF', 'Keluar'))
-if choice == 'Tampil':
+def promptMenus():
+	targetPath = dialog.askopenfilename()
+	if targetPath == None or targetPath == "":
+		terminate()
+		return None
+	else:
+		x = targetPath.replace("/","\\")
+		csvPath = "r'" + x +"'"
+		print(csvPath)
+		exportPath = x.rsplit(".")[0] + ".pdf"
+		print(exportPath)
+		# print(targetPath.rsplit("/", 1)[0])
+		# print(os.getcwd().replace("\\","/"))
+		# print(relpath(targetPath.rsplit("/", 1)[0],
+		# 	os.getcwd().replace("\\","/")))
+		# print(relpath(csvPath))
 	legendTitle = ui.enterbox("Input judul:", "Pertanyaan", "ketik disini...")
+	if legendTitle == None:
+		terminate()
+		return None
 	doWork()
+
+def terminate():
+	sys.exit(0)
+
+# codes for prompt window
+choice = ui.buttonbox('Ingin tampil atau PDF?', 'Pertanyaan', ('Tampil', 'PDF', 'Keluar'))
+if choice == 'Tampil':
+	promptMenus()
 	plt.show()
 elif choice == 'PDF':
-	legendTitle = ui.enterbox("Input judul:", "Pertanyaan", "ketik disini...")
-	doWork()
+	promptMenus()
 	ax.axis('off')
 	plt.axis('off')
 	save_multiple_plot(exportPath)
 else:
-	sys.exit(0)
+	terminate()
