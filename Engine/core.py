@@ -14,7 +14,7 @@ import easygui as ui
 
 # paths
 imgPath = [r"../Raw/Raw_KdPengawas_Approv_I.png", r"../Raw/Raw_KdPengawas_Approv_II.png"]
-csvPath = ""
+# csvPath = ""
 csvEncoding = 'utf-8-sig' #prevent false Encoding
 exportPath = ""
 # defaultHomePath = eu("~")
@@ -55,6 +55,9 @@ leg2 = [7000, _]
 
 # draw patches, automated with csv, skip a line iteration if found an empty entry
 def doWork():
+	print("initDoWork: ", os.getcwd())
+	x = promptMenus()
+	print("x: ", x)
 	with open(csvPath, encoding=csvEncoding) as file:
 		reader = csv.DictReader(file)
 		# list column and its patch counter after 'Spesifikasi' for later use
@@ -165,12 +168,12 @@ def promptMenus():
 	if targetPath == None or targetPath == "":
 		terminate()
 		return None
-	else:
-		x = targetPath.replace("/","\\")
-		csvPath = "r'" + x +"'"
-		print(csvPath)
-		exportPath = x.rsplit(".")[0] + ".pdf"
-		print(exportPath)
+	# else:
+	# 	x = targetPath.replace("/","\\")
+	# 	csvPath = "r'" + x +"'"
+	# 	print(csvPath)
+	# 	exportPath = x.rsplit(".")[0] + ".pdf"
+	# 	print(exportPath)
 		# print(targetPath.rsplit("/", 1)[0])
 		# print(os.getcwd().replace("\\","/"))
 		# print(relpath(targetPath.rsplit("/", 1)[0],
@@ -180,7 +183,7 @@ def promptMenus():
 	if legendTitle == None:
 		terminate()
 		return None
-	doWork()
+	return targetPath, legendTitle
 
 def terminate():
 	sys.exit(0)
@@ -188,10 +191,10 @@ def terminate():
 # codes for prompt window
 choice = ui.buttonbox('Ingin tampil atau PDF?', 'Pertanyaan', ('Tampil', 'PDF', 'Keluar'))
 if choice == 'Tampil':
-	promptMenus()
+	doWork()
 	plt.show()
 elif choice == 'PDF':
-	promptMenus()
+	doWork()
 	ax.axis('off')
 	plt.axis('off')
 	save_multiple_plot(exportPath)
