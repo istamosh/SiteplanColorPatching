@@ -1,7 +1,5 @@
 import sys
-# from os.path import expanduser as eu
 import os
-from os.path import relpath
 import tkinter as tk
 from tkinter import filedialog as dialog
 import csv
@@ -14,11 +12,6 @@ import easygui as ui
 
 # paths
 imgPath = [r"../Raw/Raw_KdPengawas_Approv_I.png", r"../Raw/Raw_KdPengawas_Approv_II.png"]
-# csvPath = ""
-csvEncoding = 'utf-8-sig' #prevent false Encoding
-exportPath = ""
-# defaultHomePath = eu("~")
-# print(defaultHomePath)
 
 # printout A3 portrait size and tight layout
 plt.rcParams["figure.figsize"] = [11.7, 16.5]
@@ -26,10 +19,10 @@ plt.rcParams["figure.autolayout"] = True
 
 # patch config.
 opacity = 1.0
-fcSet = ['red','royalblue','yellow',
-			'magenta','limegreen','orange',
-			'hotpink','darkviolet','cyan',
-			'chartreuse','peru','coral']
+fcSet = ['magenta','yellow','cyan',
+			'red','green','blue',
+			'mediumvioletred','orange','yellowgreen',
+			'lime','dodgerblue','mediumpurple']
 
 # Figure I code
 img1 = Image.open(imgPath[0])
@@ -49,16 +42,15 @@ plt.yticks(rotation=90, ha='right') # rotate x axis text for readability
 # Legends properties
 ymax, _ = ax.get_ylim()
 _ , xmax = ax2.get_xlim()
-legendTitle = ""
 placementProp = [3500, math.floor(ymax*3/100), 20, 'left', 'top']
 leg2 = [7000, _]
 
 # draw patches, automated with csv, skip a line iteration if found an empty entry
 def doWork():
-	print("initDoWork: ", os.getcwd())
-	x = promptMenus()
-	print("x: ", x)
-	with open(csvPath, encoding=csvEncoding) as file:
+	fetch = promptMenus()
+	workingPath = fetch[0].rsplit("/", 1)
+	os.chdir(workingPath[0])
+	with open(workingPath[1], encoding='utf-8-sig') as file:
 		reader = csv.DictReader(file)
 		# list column and its patch counter after 'Spesifikasi' for later use
 		entryColumn = []
@@ -110,9 +102,9 @@ def doWork():
 			 	angle = -90
 	
 				# add a legend title on phase I:
-			 	ax.text(placementProp[0], placementProp[1], legendTitle,
+			 	ax.text(placementProp[0], placementProp[1], fetch[1],
 			 		size=placementProp[2] ,ha=placementProp[3], va=placementProp[4])
-			 	ax2.text(xmax-placementProp[1], leg2[0], legendTitle,
+			 	ax2.text(xmax-placementProp[1], leg2[0], fetch[1],
 			 		rotation=angle,	size=placementProp[2], 
 			 		ha='right', va='top')
 
@@ -153,7 +145,7 @@ def doWork():
 				 			ha='center', va='top', rotation=angle)
 	
 				 		vertTolerance1 += 200
-
+	return fetch[0]			 		
 # defining a method for saving multipages PDF
 def save_multiple_plot(fileName):
 	ops = pp(fileName)
@@ -168,17 +160,6 @@ def promptMenus():
 	if targetPath == None or targetPath == "":
 		terminate()
 		return None
-	# else:
-	# 	x = targetPath.replace("/","\\")
-	# 	csvPath = "r'" + x +"'"
-	# 	print(csvPath)
-	# 	exportPath = x.rsplit(".")[0] + ".pdf"
-	# 	print(exportPath)
-		# print(targetPath.rsplit("/", 1)[0])
-		# print(os.getcwd().replace("\\","/"))
-		# print(relpath(targetPath.rsplit("/", 1)[0],
-		# 	os.getcwd().replace("\\","/")))
-		# print(relpath(csvPath))
 	legendTitle = ui.enterbox("Input judul:", "Pertanyaan", "ketik disini...")
 	if legendTitle == None:
 		terminate()
@@ -194,9 +175,10 @@ if choice == 'Tampil':
 	doWork()
 	plt.show()
 elif choice == 'PDF':
-	doWork()
+	_targetPath = doWork()
+	targetPdf = _targetPath.rsplit(".", 1)[0] + ".pdf"
 	ax.axis('off')
 	plt.axis('off')
-	save_multiple_plot(exportPath)
+	save_multiple_plot(targetPdf)
 else:
 	terminate()
