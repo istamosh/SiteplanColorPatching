@@ -11,7 +11,7 @@ from PIL import Image
 import easygui as ui
 
 # paths
-imgPath = [r"./Raw_KdPengawas_Approv_I.png", r"./Raw_KdPengawas_Approv_II.png"]
+imgPath = ["Raw_KdPengawas_Approv_I.png", "Raw_KdPengawas_Approv_II.png"]
 
 # printout A3 portrait size and tight layout
 plt.rcParams["figure.figsize"] = [11.7, 16.5]
@@ -24,15 +24,26 @@ fcSet = ['magenta','yellow','cyan',
 			'mediumvioletred','orange','yellowgreen',
 			'lime','dodgerblue','mediumpurple']
 
+# for file bundling purposes (thx to max from stackoverflow)
+def resource_path(relative_path):
+    """ Get absolute path to resource, works for dev and for PyInstaller """
+    try:
+        # PyInstaller creates a temp folder and stores path in _MEIPASS
+        base_path = sys._MEIPASS
+    except Exception:
+        base_path = os.path.abspath(".")
+
+    return os.path.join(base_path, relative_path)
+    
 # Figure I code
-img1 = Image.open(imgPath[0])
+img1 = Image.open(resource_path(imgPath[0]))
 fig,ax = plt.subplots()
 ax.axis('on') # draw xy axes.
 ax.imshow(img1, zorder=3) # show main image and make it to frontmost layer
 fig.canvas.manager.set_window_title('Siteplan Phase I') # add name to window (placeholder)
 
 # Figure II code
-img2 = Image.open(imgPath[1])
+img2 = Image.open(resource_path(imgPath[1]))
 fig2, ax2 = plt.subplots()
 ax2.imshow(img2, zorder=3)
 fig2.canvas.manager.set_window_title('Siteplan Phase II')
