@@ -11,7 +11,7 @@ from PIL import Image
 import easygui as ui
 
 # paths
-imgPath = [r"../Raw/Raw_KdPengawas_Approv_I.png", r"../Raw/Raw_KdPengawas_Approv_II.png"]
+imgPath = [r"./Raw_KdPengawas_Approv_I.png", r"./Raw_KdPengawas_Approv_II.png"]
 
 # printout A3 portrait size and tight layout
 plt.rcParams["figure.figsize"] = [11.7, 16.5]
