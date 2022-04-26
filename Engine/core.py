@@ -154,9 +154,11 @@ def save_multiple_plot(fileName):
 	for fig in figures:
 		fig.savefig(ops, format='pdf', dpi=600, bbox_inches='tight')
 	ops.close()
+	tk.messagebox.showinfo("Info","Selesai export ke PDF!")
 
 def promptMenus():
-	targetPath = dialog.askopenfilename()
+	targetPath = dialog.askopenfilename(title="Pilih file CSV",
+		filetypes=(("CSV Files", "*.csv"),))
 	if targetPath == None or targetPath == "":
 		terminate()
 		return None
