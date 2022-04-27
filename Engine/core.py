@@ -1,60 +1,100 @@
 import sys
+import os
+import tkinter as tk
+from tkinter import filedialog as dialog
 import csv
 import math
+import matplotlib
 import matplotlib.pyplot as plt
 import matplotlib.patches as patch
 from matplotlib.backends.backend_pdf import PdfPages as pp
+from matplotlib import backend_bases
 from PIL import Image
 import easygui as ui
 
 # paths
-imgPath = [r"../Raw/Raw_KdPengawas_Approv_I.png", r"../Raw/Raw_KdPengawas_Approv_II.png"]
-csvPath = r"../Datas/patchdataset.csv"
-csvEncoding = 'utf-8-sig' #prevent false Encoding
-exportPath = "../Exports/multiplePageTest.pdf"
+imgPath = ["Raw_KdPengawas_Approv_I.png", "Raw_KdPengawas_Approv_II.png"]
 
 # printout A3 portrait size and tight layout
 plt.rcParams["figure.figsize"] = [11.7, 16.5]
 plt.rcParams["figure.autolayout"] = True
 
+# disable some original matplotlib button for viewing purpose
+backend_bases.NavigationToolbar2.toolitems = (
+	('Home', 'Reset original view', 'home', 'home'),
+    ('Back', 'Back to  previous view', 'back', 'back'),
+    ('Forward', 'Forward to next view', 'forward', 'forward'),
+    (None, None, None, None),
+    ('Pan', 'Pan axes with left mouse, zoom with right', 'move', 'pan'),
+    ('Zoom', 'Zoom to rectangle', 'zoom_to_rect', 'zoom'),
+    #('Subplots', 'Configure subplots', 'subplots', 'configure_subplots'),
+    (None, None, None, None),
+    #('Save', 'Save the figure', 'filesave', 'save_figure'),
+	)
+# some monkeypatching after code above (thx to freude from stackoverflow)
+if matplotlib.get_backend() == 'Qt5Agg':
+    from matplotlib.backends.backend_qt5 import NavigationToolbar2QT
+    def _update_buttons_checked(self):
+        # sync button checkstates to match active mode (patched)
+        if 'pan' in self._actions:
+            self._actions['pan'].setChecked(self._active == 'PAN')
+        if 'zoom' in self._actions:
+            self._actions['zoom'].setChecked(self._active == 'ZOOM')
+    NavigationToolbar2QT._update_buttons_checked = _update_buttons_checked
+
 # patch config.
 opacity = 1.0
-fcSet = ['red','royalblue','yellow',
-			'magenta','limegreen','orange',
-			'hotpink','darkviolet','cyan',
-			'chartreuse','peru','coral']
+fcSet = ['magenta','yellow','cyan',
+			'red','green','blue',
+			'mediumvioletred','orange','yellowgreen',
+			'lime','dodgerblue','mediumpurple']
 
+# for file bundling purposes (thx to max from stackoverflow)
+def resource_path(relative_path):
+    """ Get absolute path to resource, works for dev and for PyInstaller """
+    try:
+        # PyInstaller creates a temp folder and stores path in _MEIPASS
+        base_path = sys._MEIPASS
+    except Exception:
+        base_path = os.path.abspath(".")
+
+    return os.path.join(base_path, relative_path)
+    
 # Figure I code
-img1 = Image.open(imgPath[0])
+img1 = Image.open(resource_path(imgPath[0]))
 fig,ax = plt.subplots()
 ax.axis('on') # draw xy axes.
 ax.imshow(img1, zorder=3) # show main image and make it to frontmost layer
 fig.canvas.manager.set_window_title('Siteplan Phase I') # add name to window (placeholder)
+plt.yticks(rotation=90, ha='right', va='center') # rotate x axis text for readability
 
 # Figure II code
-img2 = Image.open(imgPath[1])
+img2 = Image.open(resource_path(imgPath[1]))
 fig2, ax2 = plt.subplots()
 ax2.imshow(img2, zorder=3)
 fig2.canvas.manager.set_window_title('Siteplan Phase II')
+plt.yticks(rotation=90, ha='right', va='center') # rotate x axis text for readability
 
-plt.yticks(rotation=90, ha='right') # rotate x axis text for readability
-
-# Phase I legends properties
+# Legends properties
 ymax, _ = ax.get_ylim()
 _ , xmax = ax2.get_xlim()
-legendTitle = ""
 placementProp = [3500, math.floor(ymax*3/100), 20, 'left', 'top']
 leg2 = [7000, _]
 
 # draw patches, automated with csv, skip a line iteration if found an empty entry
 def doWork():
-	with open(csvPath, encoding=csvEncoding) as file:
+	fetch = promptMenus()
+	workingPath = fetch[0].rsplit("/", 1)
+	os.chdir(workingPath[0])
+	with open(workingPath[1], encoding='utf-8-sig') as file:
 		reader = csv.DictReader(file)
-		# list column after 'Spesifikasi' for later use
+		# list column and its patch counter after 'Spesifikasi' for later use
 		entryColumn = []
+		placeholderCounter = []
 		for idx, x in enumerate(reader.fieldnames):
 			if idx > reader.fieldnames.index("Spesifikasi"):
 				entryColumn.append(x)
+				placeholderCounter.append(0)
 	
 		# go to phase II if block reaches d64
 		phaseSeparator = 0
@@ -79,43 +119,47 @@ def doWork():
 							ax.add_patch(patch.Rectangle((float(row['coordX']),
 							float(row['coord-Y'])), float(row['expandX']),
 							float(row['expand-Y']), fc=fcSet[idx], alpha=opacity))
+							placeholderCounter[idx] += 1
 				else:
 					for idx, x in enumerate(entryColumn):
 						if row[x] == "v":
 							ax2.add_patch(patch.Rectangle((float(row['coordX']),
 							float(row['coord-Y'])), float(row['expandX']),
 							float(row['expand-Y']), fc=fcSet[idx], alpha=opacity))
+							placeholderCounter[idx] += 1
 			
 			if len(reader.fieldnames) > reader.fieldnames.index("Spesifikasi"):
 				# add legends
 			 	# legend y placement spacing below title
-			 	vertTolerance = placementProp[1]+(math.ceil(placementProp[1]*50/100))
+			 	vertTolerance = placementProp[1]+math.ceil(placementProp[1]*50/100)
 			 	horzTolerance = placementProp[0]+1500
 			 	vertTolerance1 = vertTolerance
 			 	legendSize = 150
 			 	angle = -90
 	
 				# add a legend title on phase I:
-			 	ax.text(placementProp[0], placementProp[1], legendTitle,
+			 	ax.text(placementProp[0], placementProp[1], fetch[1],
 			 		size=placementProp[2] ,ha=placementProp[3], va=placementProp[4])
-			 	ax2.text(xmax-placementProp[1], leg2[0], legendTitle,
+			 	ax2.text(xmax-placementProp[1], leg2[0], fetch[1],
 			 		rotation=angle,	size=placementProp[2], 
 			 		ha='right', va='top')
-	
+
 			 	for idx, x in enumerate(entryColumn):
 			 		if idx <= 5:
 			 			# phase I
 				 		ax.add_patch(patch.Rectangle((placementProp[0], vertTolerance+100),
 				 			legendSize, legendSize, fc=fcSet[idx], ec='black', alpha=opacity))
-				 		ax.text(placementProp[0]+250, vertTolerance+(math.floor(legendSize*50/100))+100,
-				 		 	entryColumn[idx], size=placementProp[2]-(math.ceil(placementProp[2]*25/100)),
+				 		ax.text(placementProp[0]+250, vertTolerance+math.floor(legendSize*50/100)+100,
+				 		 	entryColumn[idx] + " (" + str(placeholderCounter[idx]) +")", 
+				 		 	size=placementProp[2]-math.ceil(placementProp[2]*25/100),
 				 			ha='left', va='center')
 	
 				 		# phase II
 				 		ax2.add_patch(patch.Rectangle((xmax-placementProp[1]-vertTolerance, leg2[0]),
 				 			legendSize, legendSize, fc=fcSet[idx], ec='black', alpha=opacity))
 				 		ax2.text(xmax-250-vertTolerance, leg2[0]+250,
-				 			entryColumn[idx], size=placementProp[2]-math.ceil(placementProp[2]*25/100),
+				 			entryColumn[idx] + " (" + str(placeholderCounter[idx]) +")", 
+				 			size=placementProp[2]-math.ceil(placementProp[2]*25/100),
 				 			ha='center', va='top', rotation=angle)
 	
 				 		vertTolerance += 200
@@ -123,19 +167,21 @@ def doWork():
 				 		# phase I
 				 		ax.add_patch(patch.Rectangle((horzTolerance, vertTolerance1+100),
 				 			legendSize, legendSize, fc=fcSet[idx], ec='black', alpha=opacity))
-				 		ax.text(horzTolerance+250, vertTolerance1+(math.floor(legendSize*50/100))+100,
-				 		 	entryColumn[idx], size=placementProp[2]-(math.ceil(placementProp[2]*25/100)),
+				 		ax.text(horzTolerance+250, vertTolerance1+math.floor(legendSize*50/100)+100,
+				 		 	entryColumn[idx] + " (" + str(placeholderCounter[idx]) +")", 
+				 		 	size=placementProp[2]-math.ceil(placementProp[2]*25/100),
 				 			ha='left', va='center')
 	
 				 		# phase II
 				 		ax2.add_patch(patch.Rectangle((xmax-placementProp[1]-vertTolerance1, leg2[0]+1500),
 				 			legendSize, legendSize, fc=fcSet[idx], ec='black', alpha=opacity))
 				 		ax2.text(xmax-vertTolerance1-250, leg2[0]+1500+250,
-				 			entryColumn[idx], size=placementProp[2]-math.ceil(placementProp[2]*25/100),
+				 			entryColumn[idx] + " (" + str(placeholderCounter[idx]) +")", 
+				 			size=placementProp[2]-math.ceil(placementProp[2]*25/100),
 				 			ha='center', va='top', rotation=angle)
 	
 				 		vertTolerance1 += 200
-
+	return fetch[0]			 		
 # defining a method for saving multipages PDF
 def save_multiple_plot(fileName):
 	ops = pp(fileName)
@@ -144,18 +190,33 @@ def save_multiple_plot(fileName):
 	for fig in figures:
 		fig.savefig(ops, format='pdf', dpi=600, bbox_inches='tight')
 	ops.close()
+	tk.messagebox.showinfo("Info","Selesai export ke PDF!")
+
+def promptMenus():
+	targetPath = dialog.askopenfilename(title="Pilih file CSV",
+		filetypes=(("CSV Files", "*.csv"),))
+	if targetPath == None or targetPath == "":
+		terminate()
+		return None
+	legendTitle = ui.enterbox("Input judul legenda:", "Pertanyaan", "ketik disini...")
+	if legendTitle == None:
+		terminate()
+		return None
+	return targetPath, legendTitle
+
+def terminate():
+	sys.exit(0)
 
 # codes for prompt window
-choice = ui.buttonbox('Mau tampil atau PDF?', 'Pertanyaan', ('Tampil', 'PDF', 'Keluar'))
+choice = ui.buttonbox('Ingin tampil atau PDF?', 'Pertanyaan', ('Tampil', 'PDF', 'Keluar'))
 if choice == 'Tampil':
-	legendTitle = ui.enterbox("Input judul:", "Pertanyaan", "ketik disini...")
 	doWork()
 	plt.show()
 elif choice == 'PDF':
-	legendTitle = ui.enterbox("Input judul:", "Pertanyaan", "ketik disini...")
-	doWork()
+	_targetPath = doWork()
+	targetPdf = _targetPath.rsplit(".", 1)[0] + ".pdf"
 	ax.axis('off')
 	plt.axis('off')
-	save_multiple_plot(exportPath)
+	save_multiple_plot(targetPdf)
 else:
-	sys.exit(0)
+	terminate()
