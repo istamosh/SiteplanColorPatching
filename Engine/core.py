@@ -4,9 +4,11 @@ import tkinter as tk
 from tkinter import filedialog as dialog
 import csv
 import math
+import matplotlib
 import matplotlib.pyplot as plt
 import matplotlib.patches as patch
 from matplotlib.backends.backend_pdf import PdfPages as pp
+from matplotlib import backend_bases
 from PIL import Image
 import easygui as ui
 
@@ -16,6 +18,29 @@ imgPath = ["Raw_KdPengawas_Approv_I.png", "Raw_KdPengawas_Approv_II.png"]
 # printout A3 portrait size and tight layout
 plt.rcParams["figure.figsize"] = [11.7, 16.5]
 plt.rcParams["figure.autolayout"] = True
+
+# disable some original matplotlib button for viewing purpose
+backend_bases.NavigationToolbar2.toolitems = (
+	('Home', 'Reset original view', 'home', 'home'),
+    ('Back', 'Back to  previous view', 'back', 'back'),
+    ('Forward', 'Forward to next view', 'forward', 'forward'),
+    (None, None, None, None),
+    ('Pan', 'Pan axes with left mouse, zoom with right', 'move', 'pan'),
+    ('Zoom', 'Zoom to rectangle', 'zoom_to_rect', 'zoom'),
+    #('Subplots', 'Configure subplots', 'subplots', 'configure_subplots'),
+    (None, None, None, None),
+    #('Save', 'Save the figure', 'filesave', 'save_figure'),
+	)
+# some monkeypatching after code above (thx to freude from stackoverflow)
+if matplotlib.get_backend() == 'Qt5Agg':
+    from matplotlib.backends.backend_qt5 import NavigationToolbar2QT
+    def _update_buttons_checked(self):
+        # sync button checkstates to match active mode (patched)
+        if 'pan' in self._actions:
+            self._actions['pan'].setChecked(self._active == 'PAN')
+        if 'zoom' in self._actions:
+            self._actions['zoom'].setChecked(self._active == 'ZOOM')
+    NavigationToolbar2QT._update_buttons_checked = _update_buttons_checked
 
 # patch config.
 opacity = 1.0
@@ -41,14 +66,14 @@ fig,ax = plt.subplots()
 ax.axis('on') # draw xy axes.
 ax.imshow(img1, zorder=3) # show main image and make it to frontmost layer
 fig.canvas.manager.set_window_title('Siteplan Phase I') # add name to window (placeholder)
+plt.yticks(rotation=90, ha='right', va='center') # rotate x axis text for readability
 
 # Figure II code
 img2 = Image.open(resource_path(imgPath[1]))
 fig2, ax2 = plt.subplots()
 ax2.imshow(img2, zorder=3)
 fig2.canvas.manager.set_window_title('Siteplan Phase II')
-
-plt.yticks(rotation=90, ha='right') # rotate x axis text for readability
+plt.yticks(rotation=90, ha='right', va='center') # rotate x axis text for readability
 
 # Legends properties
 ymax, _ = ax.get_ylim()
@@ -173,7 +198,7 @@ def promptMenus():
 	if targetPath == None or targetPath == "":
 		terminate()
 		return None
-	legendTitle = ui.enterbox("Input judul:", "Pertanyaan", "ketik disini...")
+	legendTitle = ui.enterbox("Input judul legenda:", "Pertanyaan", "ketik disini...")
 	if legendTitle == None:
 		terminate()
 		return None
