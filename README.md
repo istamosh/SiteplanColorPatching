@@ -1,4 +1,4 @@
-# SiteplanColorPlot
+# SiteplanColorPatching
 Siteplan color patching project for Kedung Pengawas (Green New Residence) Housing.
 
 I made this so our colleague don't have to manually print then color the blocks using coloring marker, or even manual color-hatching inside autoCAD or edited in photoshop one by one, time is money.
