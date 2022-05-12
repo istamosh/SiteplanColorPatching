@@ -1,7 +1,7 @@
 import sys
 import os
 import tkinter as tk
-from tkinter import filedialog as dialog
+from tkinter.ttk import *
 import csv
 import math
 import matplotlib
@@ -12,14 +12,41 @@ from matplotlib import backend_bases
 from PIL import Image
 import easygui as ui
 
-# paths
-imgPath = ["Raw_KdPengawas_Approv_I.png", "Raw_KdPengawas_Approv_II.png"]
+# loading bar appearance window
+window = tk.Tk()
+window.title('Loading')
+load = Progressbar(window,
+	orient=tk.HORIZONTAL,
+	length=300,
+	mode='determinate')
+label = Label(window, text="Loading...")
+load.pack() # load and pack inside said window
+label.pack()
 
+# loading bar worker
+progress = 0
+def bar(textVal):
+	if 'progress' in locals():
+		global progress
+	if load['value'] > 99:
+		window.withdraw() # withdraw the loading bar window so it doesn't appear again when opening another tkinter window
+		return # stops here so below code doesn't get exec'd
+	import time
+	progress += 12.5
+	load['value'] = progress
+	label.config(text=textVal+"...")
+	window.update() # update the appearance of said window
+	time.sleep(1)
+
+# paths
+bar("Reading site plan")
+imgPath = ["Raw_KdPengawas_Approv_I.png", "Raw_KdPengawas_Approv_II.png"]
 # printout A3 portrait size and tight layout
+bar("Setting up figure layout")
 plt.rcParams["figure.figsize"] = [11.7, 16.5]
 plt.rcParams["figure.autolayout"] = True
-
 # disable some original matplotlib button for viewing purpose
+bar("Adjusting layout")
 backend_bases.NavigationToolbar2.toolitems = (
 	('Home', 'Reset original view', 'home', 'home'),
     ('Back', 'Back to  previous view', 'back', 'back'),
@@ -32,6 +59,7 @@ backend_bases.NavigationToolbar2.toolitems = (
     #('Save', 'Save the figure', 'filesave', 'save_figure'),
 	)
 # some monkeypatching after code above (thx to freude from stackoverflow)
+bar("Syncing layout")
 if matplotlib.get_backend() == 'Qt5Agg':
     from matplotlib.backends.backend_qt5 import NavigationToolbar2QT
     def _update_buttons_checked(self):
@@ -41,14 +69,13 @@ if matplotlib.get_backend() == 'Qt5Agg':
         if 'zoom' in self._actions:
             self._actions['zoom'].setChecked(self._active == 'ZOOM')
     NavigationToolbar2QT._update_buttons_checked = _update_buttons_checked
-
 # patch config.
+bar("Configuring patch colors")
 opacity = 1.0
 fcSet = ['magenta','yellow','cyan',
 			'red','green','blue',
 			'mediumvioletred','orange','yellowgreen',
 			'lime','dodgerblue','mediumpurple']
-
 # for file bundling purposes (thx to max from stackoverflow)
 def resource_path(relative_path):
     """ Get absolute path to resource, works for dev and for PyInstaller """
@@ -61,26 +88,26 @@ def resource_path(relative_path):
     return os.path.join(base_path, relative_path)
     
 # Figure I code
+bar("Initializing site plan phase 1")
 img1 = Image.open(resource_path(imgPath[0]))
 fig,ax = plt.subplots()
 ax.axis('on') # draw xy axes.
 ax.imshow(img1, zorder=3) # show main image and make it to frontmost layer
 fig.canvas.manager.set_window_title('Siteplan Phase I') # add name to window (placeholder)
 plt.yticks(rotation=90, ha='right', va='center') # rotate x axis text for readability
-
 # Figure II code
+bar("Initializing site plan phase 2")
 img2 = Image.open(resource_path(imgPath[1]))
 fig2, ax2 = plt.subplots()
 ax2.imshow(img2, zorder=3)
 fig2.canvas.manager.set_window_title('Siteplan Phase II')
 plt.yticks(rotation=90, ha='right', va='center') # rotate x axis text for readability
-
 # Legends properties
+bar("Working on coordinates")
 ymax, _ = ax.get_ylim()
 _ , xmax = ax2.get_xlim()
 placementProp = [3500, math.floor(ymax*3/100), 20, 'left', 'top']
 leg2 = [7000, _]
-
 # draw patches, automated with csv, skip a line iteration if found an empty entry
 def doWork():
 	fetch = promptMenus()
@@ -193,7 +220,7 @@ def save_multiple_plot(fileName):
 	tk.messagebox.showinfo("Info","Selesai export ke PDF!")
 
 def promptMenus():
-	targetPath = dialog.askopenfilename(title="Pilih file CSV",
+	targetPath = tk.filedialog.askopenfilename(title="Pilih file CSV",
 		filetypes=(("CSV Files", "*.csv"),))
 	if targetPath == None or targetPath == "":
 		terminate()
@@ -207,6 +234,7 @@ def promptMenus():
 def terminate():
 	sys.exit(0)
 
+bar("ok")
 # codes for prompt window
 choice = ui.buttonbox('Ingin tampil atau PDF?', 'Pertanyaan', ('Tampil', 'PDF', 'Keluar'))
 if choice == 'Tampil':
