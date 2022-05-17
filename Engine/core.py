@@ -236,8 +236,8 @@ def terminate():
 
 bar("ok")
 # codes for prompt window
-choice = ui.buttonbox('Ingin tampil atau PDF?', 'Pertanyaan', ('Tampil', 'PDF', 'Keluar'))
-if choice == 'Tampil':
+choice = ui.buttonbox('Ingin tampilkan data di layar atau ekspor data sebagai PDF?', 'Pertanyaan', ('Tampilkan', 'PDF', 'Keluar'))
+if choice == 'Tampilkan':
 	doWork()
 	plt.show()
 elif choice == 'PDF':
