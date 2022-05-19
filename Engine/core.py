@@ -38,6 +38,15 @@ def bar(textVal):
 	window.update() # update the appearance of said window
 	time.sleep(1)
 
+#placeholder func
+def barPdf():
+	loadpdf = Progressbar(window,
+		orient=tk.HORIZONTAL,
+		length=300,
+		mode='indeterminate')
+	loadpdf.pack()
+	label.pack()
+
 # paths
 bar("Reading site plan")
 imgPath = ["Raw_KdPengawas_Approv_I.png", "Raw_KdPengawas_Approv_II.png"]
